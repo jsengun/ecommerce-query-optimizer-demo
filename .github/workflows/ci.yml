@@ -1,0 +1,40 @@
+name: CI
+
+# Scenario 1 in action: this pipeline runs automatically on every push and on
+# every pull request targeting main, so broken code is caught before it merges.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      # Prove the code works across the Python versions the team supports.
+      matrix:
+        python-version: ["3.9", "3.11", "3.12"]
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint with ruff
+        run: ruff check src tests
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Smoke-test the benchmark (small dataset)
+        run: |
+          python src/seed.py --products 5000 --users 500 --orders 1000
+          python src/benchmark.py

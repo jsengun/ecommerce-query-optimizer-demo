@@ -1,0 +1,10 @@
+# Generated database — recreate it with `python src/seed.py`
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+venv/
+.venv/
