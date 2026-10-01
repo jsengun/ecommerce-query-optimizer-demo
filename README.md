@@ -9,13 +9,21 @@ after** adding the right indexes.
 Everything runs with the Python standard library plus `pytest` — **no database
 server to install**.
 
-## Why this project exists
+## Problem statement
 
 As an online store grows, the same SQL that felt instant with a few hundred
-products starts to crawl once the catalog and traffic grow. The usual culprits are
-full table scans on unindexed columns, inefficient joins, and poorly ordered
-predicates. This repo makes that slowdown visible and then fixes it, so you can see
-the impact of each change rather than take it on faith.
+products starts to crawl once the catalog and traffic grow. When product searches
+and multi-parameter filtering (by category, price range, and rating) run against
+unindexed columns, the database must perform **full table scans**, reading and
+testing every row. That cost grows linearly with table size, so response times
+degrade sharply under heavy user concurrency, exactly the slow searches, filtering,
+and checkout delays this demo reproduces. Other usual culprits are inefficient
+joins and poorly ordered predicates. This repo makes that slowdown visible and then
+fixes it, so you can see the impact of each change rather than take it on faith.
+
+The core fix is indexing: a composite **B-tree index** lets the engine seek
+directly to matching rows instead of scanning the whole table, reducing lookup cost
+from roughly **O(N)** (linear scan) toward **O(log N)** (index seek).
 
 ## What it shows
 
